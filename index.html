@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>🛒 Courses — Week-end Pont</title>
+  <style>
+    :root {
+      --green-dark: #1a3a2a;
+      --green-mid: #2d6a4f;
+      --green-light: #40916c;
+      --green-pale: #d8f3dc;
+      --green-ultra: #f0faf2;
+      --accent: #52b788;
+      --text: #1b2d23;
+      --text-muted: #6b8f7a;
+      --bg: #f4f7f5;
+      --card: #ffffff;
+      --border: #e0ebe4;
+      --done-bg: #f9fafb;
+      --done-text: #9db4a8;
+      --danger: #d62828;
+      --shadow: 0 2px 8px rgba(26,58,42,0.10);
+      --shadow-lg: 0 8px 24px rgba(26,58,42,0.16);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overscroll-behavior: none;
+    }
+
+    /* ─── WELCOME ─── */
+    #welcome {
+      position: fixed; inset: 0;
+      background: var(--green-dark);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 1000;
+      padding: 24px;
+      transition: opacity .3s, transform .3s;
+    }
+    #welcome.hidden { opacity: 0; transform: scale(1.04); pointer-events: none; }
+    .welcome-logo { font-size: 56px; margin-bottom: 8px; }
+    .welcome-title {
+      font-size: 22px; font-weight: 700;
+      color: #fff; text-align: center; line-height: 1.3; margin-bottom: 4px;
+    }
+    .welcome-sub {
+      font-size: 14px; color: rgba(255,255,255,.55);
+      text-align: center; margin-bottom: 36px;
+    }
+    .welcome-card {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px;
+      padding: 28px 24px;
+      width: 100%; max-width: 380px;
+    }
+    .welcome-label {
+      font-size: 13px; font-weight: 600;
+      color: rgba(255,255,255,.65);
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 10px;
+    }
+    .welcome-names {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;
+    }
+    .name-chip {
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 15px; font-weight: 500;
+      cursor: pointer;
+      border: 2px solid transparent;
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      transition: all .18s;
+    }
+    .name-chip:hover, .name-chip.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .welcome-or {
+      text-align: center; color: rgba(255,255,255,.35);
+      font-size: 13px; margin: 12px 0;
+    }
+    .welcome-input-row { display: flex; gap: 8px; }
+    .welcome-input {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      color: #fff; font-size: 15px;
+      outline: none;
+    }
+    .welcome-input::placeholder { color: rgba(255,255,255,.35); }
+    .welcome-input:focus { border-color: var(--accent); }
+    .btn-start {
+      margin-top: 24px; width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: #fff; font-size: 16px; font-weight: 700;
+      border: none; border-radius: 14px; cursor: pointer;
+      transition: background .18s, transform .1s;
+    }
+    .btn-start:hover { background: var(--green-light); }
+    .btn-start:active { transform: scale(.97); }
+
+    /* ─── HEADER ─── */
+    #app-header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--green-dark);
+      color: #fff;
+      padding: 0 16px;
+      box-shadow: var(--shadow-lg);
+    }
+    .header-top {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 14px 0 10px;
+    }
+    .header-title { font-size: 17px; font-weight: 700; }
+    .header-sub { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 2px; }
+    .user-chip {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      padding: 7px 12px; border-radius: 999px;
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; color: #fff;
+      transition: background .18s;
+      white-space: nowrap;
+    }
+    .user-chip:hover { background: rgba(255,255,255,.2); }
+    .user-chip-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); flex-shrink: 0;
+    }
+
+    /* Progress */
+    .progress-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 0 12px;
+    }
+    .progress-bar-wrap {
+      flex: 1; height: 6px; border-radius: 999px;
+      background: rgba(255,255,255,.15); overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; border-radius: 999px;
+      background: var(--accent);
+      transition: width .4s ease;
+    }
+    .progress-label {
+      font-size: 13px; font-weight: 600;
+      color: rgba(255,255,255,.8); white-space: nowrap;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex; gap: 6px;
+      padding: 0 16px 12px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      flex-shrink: 0; padding: 6px 14px;
+      border-radius: 999px; border: 1.5px solid rgba(255,255,255,.18);
+      background: transparent; color: rgba(255,255,255,.65);
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: all .18s;
+    }
+    .filter-btn.active {
+      background: var(--accent); border-color: var(--accent); color: #fff;
+    }
+
+    /* ─── CONTENT ─── */
+    #content { padding: 12px 12px 100px; }
+
+    /* Category section */
+    .category-section { margin-bottom: 16px; }
+    .category-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px 8px;
+      cursor: pointer; user-select: none;
+    }
+    .category-header-left { display: flex; flex-direction: column; }
+    .category-name {
+      font-size: 15px; font-weight: 700; color: var(--green-dark);
+    }
+    .category-repas {
+      font-size: 12px; color: var(--text-muted); margin-top: 1px;
+    }
+    .category-badge {
+      display: flex; align-items: center; gap: 4px;
+    }
+    .badge-pill {
+      background: var(--green-pale);
+      color: var(--green-mid);
+      font-size: 12px; font-weight: 700;
+      padding: 3px 9px; border-radius: 999px;
+    }
+    .badge-pill.done { background: #e5e9e7; color: var(--text-muted); }
+    .collapse-icon {
+      font-size: 14px; color: var(--text-muted);
+      margin-left: 6px; transition: transform .2s;
+    }
+    .category-section.collapsed .collapse-icon { transform: rotate(-90deg); }
+
+    .items-list { display: flex; flex-direction: column; gap: 2px; }
+    .category-section.collapsed .items-list { display: none; }
+
+    /* Item row */
+    .item-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 14px;
+      background: var(--card);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background .15s, opacity .2s;
+      position: relative;
+    }
+    .item-row:active { background: var(--green-ultra); }
+    .item-row.done {
+      background: var(--done-bg);
+      opacity: .7;
+    }
+
+    .item-check {
+      flex-shrink: 0; margin-top: 2px;
+      width: 22px; height: 22px; border-radius: 6px;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      transition: all .18s;
+      background: #fff;
+    }
+    .item-row.done .item-check {
+      background: var(--green-mid); border-color: var(--green-mid);
+    }
+    .item-check-icon { color: #fff; font-size: 13px; display: none; }
+    .item-row.done .item-check-icon { display: block; }
+
+    .item-body { flex: 1; min-width: 0; }
+    .item-name {
+      font-size: 15px; font-weight: 500; color: var(--text);
+      line-height: 1.35; word-break: break-word;
+    }
+    .item-row.done .item-name {
+      text-decoration: line-through; color: var(--done-text);
+    }
+    .item-meta {
+      display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap;
+    }
+    .item-qty {
+      font-size: 13px; color: var(--text-muted); font-weight: 500;
+    }
+    .item-resp {
+      font-size: 12px; color: var(--accent);
+      background: var(--green-pale);
+      padding: 1px 7px; border-radius: 999px; font-weight: 600;
+    }
+    .item-added {
+      font-size: 11px; color: #fff;
+      background: var(--green-mid);
+      padding: 1px 7px; border-radius: 999px;
+    }
+    .item-by {
+      font-size: 11px; color: var(--text-muted);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 48px 24px;
+      color: var(--text-muted);
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-text { font-size: 16px; font-weight: 600; }
+    .empty-sub { font-size: 14px; margin-top: 6px; }
+
+    /* ─── FAB ─── */
+    #fab {
+      position: fixed; bottom: 24px; right: 20px;
+      width: 58px; height: 58px; border-radius: 50%;
+      background: var(--green-mid);
+      color: #fff; font-size: 28px; font-weight: 300;
+      display: flex; align-items: center; justify-content: center;
+      border: none; cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      transition: background .18s, transform .1s;
+      z-index: 50;
+    }
+    #fab:hover { background: var(--green-light); }
+    #fab:active { transform: scale(.93); }
+
+    /* ─── MODAL ─── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(26,58,42,.55);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-sheet {
+      background: var(--card);
+      border-radius: 24px 24px 0 0;
+      width: 100%; max-width: 540px;
+      padding: 20px 20px 32px;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-overlay.open .modal-sheet { transform: translateY(0); }
+    .modal-handle {
+      width: 40px; height: 4px; border-radius: 2px;
+      background: var(--border); margin: 0 auto 20px;
+    }
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: var(--text-muted); margin-bottom: 7px;
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+    .form-input, .form-select {
+      width: 100%; padding: 13px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px; font-size: 15px;
+      color: var(--text); background: var(--bg);
+      outline: none; transition: border-color .18s;
+      -webkit-appearance: none;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--green-mid);
+    }
+    .btn-submit {
+      width: 100%; padding: 15px;
+      background: var(--green-mid); color: #fff;
+      font-size: 16px; font-weight: 700;
+      border: none; border-radius: 14px; cursor: pointer;
+      transition: background .18s, transform .1s;
+      margin-top: 4px;
+    }
+    .btn-submit:hover { background: var(--green-light); }
+    .btn-submit:active { transform: scale(.97); }
+    .btn-cancel {
+      width: 100%; padding: 13px;
+      background: transparent; color: var(--text-muted);
+      font-size: 15px; font-weight: 500;
+      border: 1.5px solid var(--border); border-radius: 14px; cursor: pointer;
+      margin-top: 10px; transition: all .18s;
+    }
+    .btn-cancel:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* Done count banner */
+    .done-banner {
+      text-align: center; padding: 10px 16px;
+      background: var(--green-pale); border-radius: 12px;
+      font-size: 14px; color: var(--green-mid); font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    @media (min-width: 540px) {
+      #content { padding: 16px 20px 100px; }
+      .modal-sheet { border-radius: 24px; margin-bottom: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Welcome screen -->
+<div id="welcome">
+  <div class="welcome-logo">🛒</div>
+  <div class="welcome-title">Liste de courses<br>Week-end Pont</div>
+  <div class="welcome-sub">15 pers. · Du vendredi soir au dimanche midi</div>
+  <div class="welcome-card">
+    <div class="welcome-label">Qui es-tu ?</div>
+    <div class="welcome-names" id="welcome-names"></div>
+    <div class="welcome-or">— ou écris ton prénom —</div>
+    <div class="welcome-input-row">
+      <input id="welcome-input" class="welcome-input" placeholder="Prénom…" maxlength="30">
+    </div>
+    <button class="btn-start" onclick="startApp()">C'est parti ! →</button>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app" style="display:none">
+  <div id="app-header">
+    <div class="header-top">
+      <div>
+        <div class="header-title">🛒 Courses Week-end</div>
+        <div class="header-sub" id="header-sub">Chargement…</div>
+      </div>
+      <div class="user-chip" onclick="changeUser()">
+        <div class="user-chip-dot"></div>
+        <span id="user-name-display">—</span>
+      </div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="progress-label" id="progress-label">0 / 0</div>
+    </div>
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Tout</button>
+      <button class="filter-btn" data-filter="todo" onclick="setFilter('todo',this)">À acheter</button>
+      <button class="filter-btn" data-filter="mine" onclick="setFilter('mine',this)">Les miens</button>
+      <button class="filter-btn" data-filter="done" onclick="setFilter('done',this)">Achetés ✓</button>
+    </div>
+  </div>
+
+  <div id="content"></div>
+
+  <button id="fab" onclick="openModal()" title="Ajouter un article">+</button>
+</div>
+
+<!-- Add item modal -->
+<div class="modal-overlay" id="add-modal" onclick="closeModalOutside(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Ajouter un article</div>
+    <div class="form-group">
+      <label class="form-label">Catégorie / Plat</label>
+      <select class="form-select" id="form-plat">
+        <option value="Soupe de lentilles corail">Soupe de lentilles corail</option>
+        <option value="Civet de sanglier">Civet de sanglier</option>
+        <option value="Raclette">Raclette</option>
+        <option value="Curry vert thaï">Curry vert thaï</option>
+        <option value="Apéritif &amp; Fruits">Apéritif &amp; Fruits</option>
+        <option value="Autre">Autre</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ingrédient / Article</label>
+      <input class="form-input" id="form-ingredient" placeholder="Ex: Crème fraîche…" maxlength="120">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Quantité</label>
+      <input class="form-input" id="form-qty" placeholder="Ex: 500 g, 2 boîtes…" maxlength="80">
+    </div>
+    <button class="btn-submit" onclick="addItem()">Ajouter à la liste</button>
+    <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+  </div>
+</div>
+
+<script>
+const DEFAULT_ITEMS = [
+  // Soupe de lentilles corail (Vendredi soir)
+  {id:1,  plat:"Soupe de lentilles corail", repas:"Vendredi soir",   ingredient:"Lentilles corail",                                                     quantite:"500 g",                      responsable:"Ghislain", fait:false},
+  {id:2,  plat:"Soupe de lentilles corail", repas:"Vendredi soir",   ingredient:"Pulpe de tomate",                                                       quantite:"1,4 L (ou 3 boîtes de 400g)",responsable:"Ghislain", fait:false},
+  {id:3,  plat:"Soupe de lentilles corail", repas:"Vendredi soir",   ingredient:"Lait de coco (supplément soupe)",                                       quantite:"1,3 L (4 boîtes)",           responsable:"Ghislain", fait:false},
+  {id:4,  plat:"Soupe de lentilles corail", repas:"Vendredi soir",   ingredient:"Oignons",                                                               quantite:"3 pièces",                   responsable:"Ghislain", fait:false},
+  {id:5,  plat:"Soupe de lentilles corail", repas:"Vendredi soir",   ingredient:"Gingembre frais",                                                       quantite:"7 cm / 40g",                 responsable:"Ghislain", fait:false},
+  {id:6,  plat:"Soupe de lentilles corail", repas:"Vendredi soir",   ingredient:"Gousses d'ail",                                                         quantite:"7 gousses",                  responsable:"Ghislain", fait:false},
+  {id:7,  plat:"Soupe de lentilles corail", repas:"Vendredi soir",   ingredient:"Coriandre fraîche (brins)",                                             quantite:"3 bottes",                   responsable:"Ghislain", fait:false},
+  {id:8,  plat:"Soupe de lentilles corail", repas:"Vendredi soir",   ingredient:"Poudre de curry",                                                       quantite:"3,5 c. à soupe",             responsable:"Ghislain", fait:false},
+  {id:9,  plat:"Soupe de lentilles corail", repas:"Vendredi soir",   ingredient:"Piment en flocons",                                                     quantite:"1 petit sachet",             responsable:"Ghislain", fait:false},
+  {id:10, plat:"Soupe de lentilles corail", repas:"Vendredi soir",   ingredient:"Huile de coco (ou tournesol)",                                          quantite:"7 c. à soupe",               responsable:"Ghislain", fait:false},
+  // Civet de sanglier (Samedi midi)
+  {id:11, plat:"Civet de sanglier",         repas:"Samedi midi",     ingredient:"Viande de sanglier (épaule ou cuissot)",                                quantite:"3,4 kg (env. 225g/pers)",    responsable:"Ghislain", fait:false},
+  {id:12, plat:"Civet de sanglier",         repas:"Samedi midi",     ingredient:"Vin rouge corsé (pour la marinade et la cuisson)",                      quantite:"2 bouteilles de 75 cl",      responsable:"Ghislain", fait:true},
+  {id:13, plat:"Civet de sanglier",         repas:"Samedi midi",     ingredient:"Carottes",                                                              quantite:"1,6 kg",                     responsable:"Ghislain", fait:false},
+  {id:14, plat:"Civet de sanglier",         repas:"Samedi midi",     ingredient:"Oignons jaunes",                                                        quantite:"8 oignons (environ 900g)",   responsable:"Ghislain", fait:false},
+  {id:15, plat:"Civet de sanglier",         repas:"Samedi midi",     ingredient:"Poireau",                                                               quantite:"2 poireaux",                 responsable:"Ghislain", fait:false},
+  {id:16, plat:"Civet de sanglier",         repas:"Samedi midi",     ingredient:"Gousses d'ail",                                                         quantite:"1 tête (env. 8 gousses)",    responsable:"Ghislain", fait:false},
+  {id:17, plat:"Civet de sanglier",         repas:"Samedi midi",     ingredient:"Champignons de Paris frais",                                            quantite:"500 g",                      responsable:"Ghislain", fait:false},
+  {id:18, plat:"Civet de sanglier",         repas:"Samedi midi",     ingredient:"Herbes et épices marinade (laurier, romarin, thym, persil, girofle…)",  quantite:"1 lot",                      responsable:"Ghislain", fait:false},
+  {id:19, plat:"Civet de sanglier",         repas:"Samedi midi",     ingredient:"Farine (liaison)",                                                      quantite:"130 g",                      responsable:"Ghislain", fait:false},
+  {id:20, plat:"Civet de sanglier",         repas:"Samedi midi",     ingredient:"Beurre & Huile d'olive",                                                quantite:"60g beurre + 5 cl d'huile",  responsable:"Ghislain", fait:false},
+  {id:21, plat:"Civet de sanglier",         repas:"Samedi midi",     ingredient:"Gelée de myrtilles",                                                    quantite:"1 pot",                      responsable:"Ghislain", fait:false},
+  {id:22, plat:"Civet de sanglier",         repas:"Samedi midi",     ingredient:"Patates pour purée",                                                    quantite:"3 kg",                       responsable:"Ghislain", fait:false},
+  // Raclette (Samedi soir)
+  {id:23, plat:"Raclette",                  repas:"Samedi soir",     ingredient:"Fromage à raclette (nature, fumé, morbier)",                            quantite:"3,8 kg (250g/pers.)",        responsable:"",         fait:false},
+  {id:24, plat:"Raclette",                  repas:"Samedi soir",     ingredient:"Charcuterie assortie (jambon cru, blanc, coppa, grison)",                quantite:"2,3 kg (150g/pers.)",        responsable:"",         fait:false},
+  {id:25, plat:"Raclette",                  repas:"Samedi soir",     ingredient:"Pommes de terre à chair ferme (grenaille, charlotte)",                  quantite:"3,8 kg (250g/pers.)",        responsable:"",         fait:false},
+  {id:26, plat:"Raclette",                  repas:"Samedi soir",     ingredient:"Cornichons & petits oignons blancs au vinaigre",                        quantite:"3 à 4 grands bocaux",        responsable:"",         fait:false},
+  {id:27, plat:"Raclette",                  repas:"Samedi soir",     ingredient:"Salade verte & vinaigrette",                                            quantite:"4 salades",                  responsable:"",         fait:false},
+  {id:28, plat:"Raclette",                  repas:"Samedi soir",     ingredient:"Pain (meule pain complet)",                                             quantite:"1 meule",                    responsable:"Ghislain", fait:false},
+  // Curry vert thaï (Dimanche midi)
+  {id:29, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Blancs de poulet (filets)",                                             quantite:"2,3 kg (23 blancs)",         responsable:"Ghislain", fait:false},
+  {id:30, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Lait de coco",                                                          quantite:"8 boîtes de 40 cl (3,2 L)",  responsable:"Ghislain", fait:true},
+  {id:31, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Petites aubergines rondes thaï",                                        quantite:"800 g",                      responsable:"Ghislain", fait:false},
+  {id:32, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Aubergines pois thaï (ou pois gourmands)",                              quantite:"800 g",                      responsable:"Ghislain", fait:false},
+  {id:33, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Pousses de bambou (ou mini-épis de maïs)",                              quantite:"400 g",                      responsable:"Ghislain", fait:false},
+  {id:34, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Basilic thaï frais",                                                    quantite:"3 à 4 bottes",               responsable:"Ghislain", fait:false},
+  {id:35, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Feuilles de combava (fraîches ou surgelées)",                           quantite:"16 feuilles",                responsable:"Ghislain", fait:false},
+  {id:36, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Sauce Nuoc-mâm (sauce poisson)",                                        quantite:"1 bouteille (8 c. à soupe)", responsable:"Ghislain", fait:true},
+  {id:37, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Sucre de palme (ou sucre de canne)",                                    quantite:"1 paquet (8 c. à soupe)",    responsable:"Ghislain", fait:false},
+  {id:38, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Huile végétale neutre",                                                 quantite:"1 bouteille (20 c. à soupe)",responsable:"Ghislain", fait:false},
+  {id:39, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Pâte de curry : Bâtons de citronnelle",                                 quantite:"8 tiges",                    responsable:"Ghislain", fait:true},
+  {id:40, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Pâte de curry : Gousses d'ail",                                         quantite:"19 gousses",                 responsable:"Ghislain", fait:false},
+  {id:41, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Pâte de curry : Échalotes",                                             quantite:"4 pièces",                   responsable:"Ghislain", fait:false},
+  {id:42, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Pâte de curry : Piments oiseaux verts",                                 quantite:"19 piments",                 responsable:"Ghislain", fait:true},
+  {id:43, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Pâte de curry : Coriandre fraîche (avec tiges)",                        quantite:"4 bottes",                   responsable:"Ghislain", fait:false},
+  {id:44, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Pâte de curry : Combava frais (pour zester)",                           quantite:"4 pièces",                   responsable:"Ghislain", fait:false},
+  {id:45, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Pâte de curry : Grains de poivre blanc",                                quantite:"75 grains",                  responsable:"Ghislain", fait:true},
+  {id:46, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Pâte de curry : Graines de coriandre",                                  quantite:"4 c. à café",                responsable:"Ghislain", fait:false},
+  {id:47, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Pâte de curry : Cumin moulu",                                           quantite:"4 c. à café",                responsable:"Ghislain", fait:true},
+  {id:48, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Pâte de curry : Racine de coriandre",                                   quantite:"4 c. à café",                responsable:"Ghislain", fait:false},
+  {id:49, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Pâte de curry : Sel",                                                   quantite:"4 c. à café",                responsable:"Ghislain", fait:false},
+  {id:50, plat:"Curry vert thaï",           repas:"Dimanche midi",   ingredient:"Riz blanc thaï parfumé au jasmin (accompagnement)",                     quantite:"1,5 kg (100g/pers.)",        responsable:"",         fait:false},
+  // Apéritif & Fruits (Week-end)
+  {id:51, plat:"Apéritif & Fruits",         repas:"Week-end",        ingredient:"Biscuits apéritifs, chips, cacahuètes & noix",                          quantite:"7 sachets / boîtes",         responsable:"",         fait:false},
+  {id:52, plat:"Apéritif & Fruits",         repas:"Week-end",        ingredient:"Boissons sans alcool (eau gazeuse, sodas, jus de fruits)",              quantite:"9 bouteilles (1,5 L)",       responsable:"",         fait:false},
+  {id:53, plat:"Apéritif & Fruits",         repas:"Week-end",        ingredient:"Boissons apéritives (bières, vin blanc/rosé)",                          quantite:"2 packs bière + 5 bouteilles",responsable:"",         fait:false},
+  {id:54, plat:"Apéritif & Fruits",         repas:"Week-end",        ingredient:"Fruits frais de saison (bananes, pommes, clémentines)",                 quantite:"4,5 kg assortis",            responsable:"Ghislain", fait:false},
+  {id:55, plat:"Apéritif & Fruits",         repas:"Week-end",        ingredient:"Pain frais / Baguettes (samedi soir & dimanche)",                       quantite:"7 baguettes",                responsable:"",         fait:false},
+  {id:56, plat:"Apéritif & Fruits",         repas:"Week-end",        ingredient:"Café, thé, lait, beurre (petits-déjeuners)",                            quantite:"1 lot week-end",             responsable:"",         fait:false},
+];
+
+// ─── STATE ───
+const KEY_STATE = 'courses_wknd_pont_v2';
+let state = { items: [], currentUser: '', knownUsers: ['Ghislain'] };
+let currentFilter = 'all';
+let selectedWelcomeName = '';
+
+function loadState() {
+  try {
+    const s = localStorage.getItem(KEY_STATE);
+    if (s) Object.assign(state, JSON.parse(s));
+  } catch(e) {}
+  if (!state.items || state.items.length < DEFAULT_ITEMS.length) {
+    // Merge: keep saved state for existing items, add missing ones
+    const saved = new Map((state.items || []).map(i => [i.id, i]));
+    state.items = DEFAULT_ITEMS.map(def => saved.has(def.id) ? saved.get(def.id) : {...def});
+    // Append any user-added items (id > 1000)
+    (state.items || []).filter(i => i.id >= 1000).forEach(i => {
+      if (!state.items.find(x => x.id === i.id)) state.items.push(i);
+    });
+  }
+  if (!state.knownUsers) state.knownUsers = ['Ghislain'];
+}
+
+function saveState() {
+  try { localStorage.setItem(KEY_STATE, JSON.stringify(state)); } catch(e) {}
+}
+
+// ─── WELCOME ───
+function initWelcome() {
+  const wrap = document.getElementById('welcome-names');
+  wrap.innerHTML = '';
+  state.knownUsers.forEach(name => {
+    const chip = document.createElement('button');
+    chip.className = 'name-chip' + (name === selectedWelcomeName ? ' selected' : '');
+    chip.textContent = name;
+    chip.onclick = () => { selectedWelcomeName = name; renderWelcomeChips(); };
+    wrap.appendChild(chip);
+  });
+  if (state.currentUser && !selectedWelcomeName) {
+    selectedWelcomeName = state.currentUser;
+    renderWelcomeChips();
+  }
+}
+
+function renderWelcomeChips() {
+  document.querySelectorAll('.name-chip').forEach(c => {
+    c.classList.toggle('selected', c.textContent === selectedWelcomeName);
+  });
+}
+
+function startApp() {
+  const input = document.getElementById('welcome-input');
+  const name = (input.value.trim() || selectedWelcomeName || '').trim();
+  if (!name) { input.focus(); input.style.borderColor='#f4a261'; return; }
+  state.currentUser = name;
+  if (!state.knownUsers.includes(name)) state.knownUsers.push(name);
+  saveState();
+  document.getElementById('welcome').classList.add('hidden');
+  document.getElementById('app').style.display = '';
+  setTimeout(() => { document.getElementById('welcome').style.display = 'none'; }, 350);
+  renderApp();
+}
+
+function changeUser() {
+  selectedWelcomeName = state.currentUser;
+  document.getElementById('welcome-input').value = '';
+  document.getElementById('welcome').style.display = '';
+  document.getElementById('welcome').classList.remove('hidden');
+  document.getElementById('app').style.display = 'none';
+  initWelcome();
+}
+
+// ─── FILTER ───
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function getFilteredItems() {
+  switch(currentFilter) {
+    case 'todo': return state.items.filter(i => !i.fait);
+    case 'mine': return state.items.filter(i => i.responsable === state.currentUser || i.addedBy === state.currentUser);
+    case 'done': return state.items.filter(i => i.fait);
+    default: return [...state.items];
+  }
+}
+
+// ─── RENDER ───
+function renderApp() {
+  document.getElementById('user-name-display').textContent = state.currentUser;
+  renderList();
+}
+
+function renderList() {
+  const done = state.items.filter(i => i.fait).length;
+  const total = state.items.length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${done} / ${total}`;
+  document.getElementById('header-sub').textContent =
+    `15 pers. · ${done} acheté${done > 1 ? 's' : ''} sur ${total}`;
+
+  const items = getFilteredItems();
+  const content = document.getElementById('content');
+
+  if (items.length === 0) {
+    content.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">${currentFilter === 'done' ? '🎉' : '✅'}</div>
+      <div class="empty-text">${currentFilter === 'done' ? 'Rien d\'acheté pour l\'instant' : 'Tout est acheté !'}</div>
+      <div class="empty-sub">Appuyez sur + pour ajouter un article</div>
+    </div>`;
+    return;
+  }
+
+  // Group by plat
+  const groups = {};
+  items.forEach(item => {
+    const key = item.plat + '||' + item.repas;
+    if (!groups[key]) groups[key] = { plat: item.plat, repas: item.repas, items: [] };
+    groups[key].items.push(item);
+  });
+
+  let html = '';
+  Object.values(groups).forEach(g => {
+    const doneCnt = g.items.filter(i => i.fait).length;
+    const totalCnt = g.items.length;
+    const allDone = doneCnt === totalCnt;
+    html += `<div class="category-section${allDone ? ' collapsed' : ''}">
+      <div class="category-header" onclick="toggleCategory(this.parentElement)">
+        <div class="category-header-left">
+          <div class="category-name">${esc(g.plat)}</div>
+          <div class="category-repas">${esc(g.repas)}</div>
+        </div>
+        <div class="category-badge">
+          <span class="badge-pill${doneCnt === totalCnt ? ' done' : ''}">${doneCnt}/${totalCnt}</span>
+          <span class="collapse-icon">▾</span>
+        </div>
+      </div>
+      <div class="items-list">`;
+    g.items.forEach(item => {
+      html += renderItem(item);
+    });
+    html += `</div></div>`;
+  });
+
+  content.innerHTML = html;
+}
+
+function renderItem(item) {
+  const done = item.fait;
+  return `<div class="item-row${done ? ' done' : ''}" onclick="toggleItem(${item.id})">
+    <div class="item-check">
+      <span class="item-check-icon">✓</span>
+    </div>
+    <div class="item-body">
+      <div class="item-name">${esc(item.ingredient)}</div>
+      <div class="item-meta">
+        ${item.quantite ? `<span class="item-qty">${esc(item.quantite)}</span>` : ''}
+        ${item.responsable ? `<span class="item-resp">${esc(item.responsable)}</span>` : ''}
+        ${item.addedBy ? `<span class="item-added">+ ${esc(item.addedBy)}</span>` : ''}
+        ${done && item.checkedBy ? `<span class="item-by">✓ ${esc(item.checkedBy)}</span>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleItem(id) {
+  const item = state.items.find(i => i.id === id);
+  if (!item) return;
+  item.fait = !item.fait;
+  item.checkedBy = item.fait ? state.currentUser : null;
+  saveState();
+  renderList();
+}
+
+function toggleCategory(section) {
+  section.classList.toggle('collapsed');
+}
+
+// ─── ADD ITEM ───
+function openModal() {
+  document.getElementById('add-modal').classList.add('open');
+  setTimeout(() => document.getElementById('form-ingredient').focus(), 300);
+}
+
+function closeModal() {
+  document.getElementById('add-modal').classList.remove('open');
+  document.getElementById('form-ingredient').value = '';
+  document.getElementById('form-qty').value = '';
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('add-modal')) closeModal();
+}
+
+function addItem() {
+  const plat = document.getElementById('form-plat').value;
+  const ingredient = document.getElementById('form-ingredient').value.trim();
+  const qty = document.getElementById('form-qty').value.trim();
+  if (!ingredient) {
+    document.getElementById('form-ingredient').focus();
+    return;
+  }
+  const repasMap = {
+    'Soupe de lentilles corail': 'Vendredi soir',
+    'Civet de sanglier': 'Samedi midi',
+    'Raclette': 'Samedi soir',
+    'Curry vert thaï': 'Dimanche midi',
+    'Apéritif & Fruits': 'Week-end',
+    'Autre': 'Autre',
+  };
+  const newId = 1000 + Date.now() % 1000000;
+  state.items.push({
+    id: newId,
+    plat,
+    repas: repasMap[plat] || 'Autre',
+    ingredient,
+    quantite: qty,
+    responsable: state.currentUser,
+    fait: false,
+    addedBy: state.currentUser,
+  });
+  saveState();
+  closeModal();
+  renderList();
+}
+
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── KEYBOARD ───
+document.getElementById('welcome-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startApp();
+});
+document.getElementById('form-ingredient').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('form-qty').focus();
+});
+document.getElementById('form-qty').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addItem();
+});
+
+// ─── INIT ───
+loadState();
+if (state.currentUser) {
+  document.getElementById('welcome').style.display = 'none';
+  document.getElementById('app').style.display = '';
+  renderApp();
+} else {
+  initWelcome();
+}
+</script>
+</body>
+</html>
