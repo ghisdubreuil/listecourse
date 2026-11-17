@@ -519,7 +519,7 @@ const DEFAULT_ITEMS = [
 
 // ─── STATE ───
 const KEY_STATE = 'courses_wknd_pont_v2';
-let state = { items: [], currentUser: '', knownUsers: ['Ghislain'] };
+let state = { items: [], currentUser: '', knownUsers: ['Ghislain','Pompinette','Popol','Lolo','le T','Laurène','Rick','Dédé','Marion','Matthias','le S','Audette'] };
 let currentFilter = 'all';
 let selectedWelcomeName = '';
 
@@ -537,7 +537,9 @@ function loadState() {
       if (!state.items.find(x => x.id === i.id)) state.items.push(i);
     });
   }
-  if (!state.knownUsers) state.knownUsers = ['Ghislain'];
+  const defaultNames = ['Ghislain','Pompinette','Popol','Lolo','le T','Laurène','Rick','Dédé','Marion','Matthias','le S','Audette'];
+  if (!state.knownUsers) state.knownUsers = defaultNames;
+  else defaultNames.forEach(n => { if (!state.knownUsers.includes(n)) state.knownUsers.push(n); });
 }
 
 function saveState() {
