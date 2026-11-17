@@ -1,0 +1,35 @@
+@prefix : <https://example.com/ontology/courses#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<https://example.com/ontology/courses> a owl:Ontology ;
+    rdfs:label "Courses et cuisine"@fr ;
+    dcterms:title "Ontologie courses et cuisine"@fr ;
+    rdfs:comment "Petite ontologie de test : produits, magasins, recettes, ingrédients."@fr ;
+    owl:versionInfo "0.1.0" .
+
+:Produit a owl:Class ; rdfs:label "Produit"@fr .
+:Magasin a owl:Class ; rdfs:label "Magasin"@fr .
+:Producteur a owl:Class ; rdfs:label "Producteur"@fr .
+:Recette a owl:Class ; rdfs:label "Recette"@fr .
+:Ingredient a owl:Class ; rdfs:label "Ingrédient"@fr ;
+    rdfs:comment "Une quantité d'un produit utilisée dans une recette."@fr .
+:ListeDeCourses a owl:Class ; rdfs:label "Liste de courses"@fr .
+
+:vendPar a owl:ObjectProperty ; rdfs:label "vendu par"@fr ;
+    rdfs:domain :Produit ; rdfs:range :Magasin .
+:produitPar a owl:ObjectProperty ; rdfs:label "produit par"@fr ;
+    rdfs:domain :Produit ; rdfs:range :Producteur .
+:aIngredient a owl:ObjectProperty ; rdfs:label "a pour ingrédient"@fr ;
+    rdfs:domain :Recette ; rdfs:range :Ingredient .
+:deProduit a owl:ObjectProperty ; rdfs:label "de produit"@fr ;
+    rdfs:domain :Ingredient ; rdfs:range :Produit .
+:contientProduit a owl:ObjectProperty ; rdfs:label "contient le produit"@fr ;
+    rdfs:domain :ListeDeCourses ; rdfs:range :Produit .
+
+:quantite a owl:DatatypeProperty ; rdfs:label "quantité"@fr ; rdfs:range xsd:decimal .
+:unite a owl:DatatypeProperty ; rdfs:label "unité"@fr ; rdfs:range xsd:string .
+:prixEuros a owl:DatatypeProperty ; rdfs:label "prix en euros"@fr ; rdfs:range xsd:decimal .
+:dureeMinutes a owl:DatatypeProperty ; rdfs:label "durée en minutes"@fr ; rdfs:range xsd:integer .
